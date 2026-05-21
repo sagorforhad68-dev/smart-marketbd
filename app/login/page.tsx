@@ -2,26 +2,24 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const router = useRouter()
 
   const handleLogin = async () => {
     setLoading(true)
-    setError('') // আগের এরর ক্লিয়ার করার জন্য
-    
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    
     if (error) {
       setError(error.message)
-      setLoading(false)
     } else {
-      // এই লাইনটি ব্রাউজারকে জোর করে ড্যাশবোর্ড পেজে নিয়ে যাবে
-      window.location.href = '/dashboard'
+      router.push('/dashboard')
     }
+    setLoading(false)
   }
 
   return (
