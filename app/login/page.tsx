@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('buyer')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -16,15 +17,17 @@ export default function LoginPage() {
   const handleSubmit = async () => {
     setLoading(true)
     setError('')
-
     if (isLogin) {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
-      else router.push('/dashboard')
+      else router.push('/')
     } else {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const { error } = await supabase.auth.signUp({
+        email, password,
+        options: { data: { role } }
+      })
       if (error) setError(error.message)
-      else router.push('/dashboard')
+      else router.push('/')
     }
     setLoading(false)
   }
@@ -32,23 +35,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl w-96 border border-gray-700">
-        
-        {/* Toggle Buttons */}
-        <div className="flex mb-8 bg-gray-900 rounded-xl p-1">
-          <button
-            onClick={() => setIsLogin(true)}
-            className={`flex-1 py-2 rounded-lg font-bold transition-all ${
-              isLogin ? 'bg-green-500 text-black' : 'text-gray-400'
-            }`}
-          >
+        <div className="flex mb-6 bg-gray-900 rounded-xl p-1">
+          <button onClick={() => setIsLogin(true)}
+            className={`flex-1 py-2 rounded-lg font-bold transition-all ${isLogin ? 'bg-green-500 text-black' : 'text-gray-400'}`}>
             Login
           </button>
-          <button
-            onClick={() => setIsLogin(false)}
-            className={`flex-1 py-2 rounded-lg font-bold transition-all ${
-              !isLogin ? 'bg-green-500 text-black' : 'text-gray-400'
-            }`}
-          >
+          <button onClick={() => setIsLogin(false)}
+            className={`flex-1 py-2 rounded-lg font-bold transition-all ${!isLogin ? 'bg-green-500 text-black' : 'text-gray-400'}`}>
             Sign Up
           </button>
         </div>
@@ -57,36 +50,36 @@ export default function LoginPage() {
           {isLogin ? 'Welcome Back!' : 'Create Account'}
         </h1>
 
-        {error && (
-          <p className="text-red-400 mb-4 text-sm bg-red-900/30 p-3 rounded-lg">{error}</p>
+        {!isLogin && (
+          <div className="flex mb-4 bg-gray-900 rounded-xl p-1">
+            <button onClick={() => setRole('buyer')}
+              className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${role === 'buyer' ? 'bg-blue-500 text-white' : 'text-gray-400'}`}>
+              Buyer
+            </button>
+            <button onClick={() => setRole('seller')}
+              className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${role === 'seller' ? 'bg-blue-500 text-white' : 'text-gray-400'}`}>
+              Seller
+            </button>
+          </div>
         )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full bg-gray-900 border border-gray-600 text-white p-3 mb-4 rounded-xl outline-none focus:border-green-500"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full bg-gray-900 border border-gray-600 text-white p-3 mb-6 rounded-xl outline-none focus:border-green-500"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {error && <p className="text-red-400 mb-4 text-sm bg-red-900/30 p-3 rounded-lg">{error}</p>}
 
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-green-500 hover:bg-green-400 text-black font-bold p-3 rounded-xl transition-all"
-        >
+        <input type="email" placeholder="Email"
+          className="w-full bg-gray-900 border border-gray-600 text-white p-3 mb-4 rounded-xl outline-none focus:border-green-500"
+          value={email} onChange={e => setEmail(e.target.value)} />
+
+        <input type="password" placeholder="Password"
+          className="w-full bg-gray-900 border border-gray-600 text-white p-3 mb-6 rounded-xl outline-none focus:border-green-500"
+          value={password} onChange={e => setPassword(e.target.value)} />
+
+        <button onClick={handleSubmit}
+          className="w-full bg-green-500 hover:bg-green-400 text-black font-bold p-3 rounded-xl transition-all">
           {loading ? 'Loading...' : isLogin ? 'Login' : 'Create Account'}
         </button>
 
-        <p className="text-center mt-4 text-gray-400 text-sm">
-          <Link href="/" className="text-green-400 hover:text-green-300">
-            ← Back to Home
-          </Link>
+        <p className="text-center mt-4">
+          <Link href="/" className="text-green-400 text-sm">← Back to Home</Link>
         </p>
       </div>
     </div>
