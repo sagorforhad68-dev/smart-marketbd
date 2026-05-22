@@ -1,38 +1,18 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "./context/AuthContext";
+import './globals.css'
+import Navbar from '@/components/Navbar'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+export const metadata = {
+  title: 'Smart MarketBD',
+  description: 'Local marketplace of Bangladesh',
+}
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Smart MarketBD - Premium Online Marketplace",
-  description: "AI-powered shopping for gadgets, fashion, and lifestyle. Secure checkout, fast delivery, and premium customer support.",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+    <html lang="en">
+      <body className="bg-gray-100">
+        <Navbar />
+        {children}
       </body>
     </html>
-  );
+  )
 }
