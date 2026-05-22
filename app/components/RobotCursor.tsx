@@ -33,6 +33,7 @@ const IDLE_LINES = [
 ];
 
 export default function RobotCursor() {
+  const [isMounted, setIsMounted] = useState(false);
   const [pos, setPos] = useState({ x: 300, y: 300 });
   const [msg, setMsg] = useState("আমি মনু মিয়া! Smart Market BD-তে স্বাগতম!");
   const [punch, setPunch] = useState(false);
@@ -46,6 +47,10 @@ export default function RobotCursor() {
   const idleT = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const rand = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const onMove = (e: MouseEvent | TouchEvent) => {
@@ -147,8 +152,10 @@ export default function RobotCursor() {
     <>
       <style>{styles}</style>
 
-      {/* BOOM EFFECT */}
-      {boom && (
+      {isMounted && (
+        <>
+          {/* BOOM EFFECT */}
+          {boom && (
         <div
           style={{
             position: "fixed",
@@ -376,6 +383,8 @@ export default function RobotCursor() {
           />
         </svg>
       </div>
+        </>
+      )}
     </>
   );
 }

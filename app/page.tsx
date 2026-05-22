@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import RobotCursor from "./components/RobotCursor";
@@ -128,9 +129,11 @@ export default function Home() {
           <button className="rounded-full border border-zinc-800 p-3 hover:border-green-400 transition-all">
             <FaShoppingCart className="text-xl" />
           </button>
-          <button className="bg-green-500 hover:bg-green-400 px-5 py-2 rounded-2xl font-bold transition-all">
-            Login
-          </button>
+          <Link href="/login">
+            <button className="bg-green-500 hover:bg-green-400 px-5 py-2 rounded-2xl font-bold transition-all">
+              Login
+            </button>
+          </Link>
         </div>
       </nav>
 
@@ -182,7 +185,10 @@ export default function Home() {
               </motion.p>
 
               <div className="flex flex-wrap items-center gap-4">
-                <button className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 px-8 py-4 rounded-3xl text-lg font-bold transition-all shadow-2xl shadow-green-500/10">
+                <button 
+                  onClick={() => setActiveSlide(1)} 
+                  className="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 px-8 py-4 rounded-3xl text-lg font-bold transition-all shadow-2xl shadow-green-500/10"
+                >
                   {activeHero.cta}
                   <FaChevronRight />
                 </button>
@@ -357,7 +363,10 @@ export default function Home() {
                   <p className="text-zinc-400 mb-6">{product.desc}</p>
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-3xl font-black text-green-400">{product.price}</span>
-                    <button className="rounded-3xl bg-green-500 px-6 py-3 font-bold uppercase tracking-wide text-black hover:bg-green-400 transition-all">
+                    <button 
+                      onClick={() => alert(`Added ${product.name} to cart!`)}
+                      className="rounded-3xl bg-green-500 px-6 py-3 font-bold uppercase tracking-wide text-black hover:bg-green-400 transition-all"
+                    >
                       Buy Now
                     </button>
                   </div>
@@ -403,7 +412,10 @@ export default function Home() {
                     <p className="text-zinc-400 mb-4">Flagship smartphone collection.</p>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-black text-green-400">{product.price}</span>
-                      <button className="rounded-2xl bg-green-500 px-5 py-2 font-bold text-black hover:bg-green-400 transition-all">
+                      <button 
+                        onClick={() => alert(`Added ${product.title} to cart!`)}
+                        className="rounded-2xl bg-green-500 px-5 py-2 font-bold text-black hover:bg-green-400 transition-all"
+                      >
                         Buy
                       </button>
                     </div>
