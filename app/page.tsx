@@ -1,5 +1,4 @@
-﻿
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -91,7 +90,7 @@ export default function Home() {
     if (categoryFilter) query = query.eq('category', categoryFilter);
     if (conditionFilter) query = query.eq('condition', conditionFilter);
     if (viewType === 'single') query = query.eq('type', 'single');
-    if (search) query = query.ilike('title', %${search}%);
+    if (search) query = query.ilike('title', '%' + search + '%');
     const { data } = await query.order('created_at', { ascending: false });
     setListings(data || []);
   };
@@ -231,7 +230,7 @@ export default function Home() {
                   <p className="text-zinc-400 mb-6">{product.desc}</p>
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-3xl font-black text-green-400">{product.price}</span>
-                    <button onClick={() => alert(Added ${product.name} to cart!)} className="rounded-3xl bg-green-500 px-6 py-3 font-bold uppercase tracking-wide text-black hover:bg-green-400 transition-all">Buy Now</button>
+                    <button onClick={() => alert('Added ' + product.name + ' to cart!')} className="rounded-3xl bg-green-500 px-6 py-3 font-bold uppercase tracking-wide text-black hover:bg-green-400 transition-all">Buy Now</button>
                   </div>
                 </div>
               </motion.div>
@@ -293,7 +292,7 @@ export default function Home() {
                     <p className="text-zinc-400 mb-4">Flagship smartphone collection.</p>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-black text-green-400">{product.price}</span>
-                      <button onClick={() => alert(Added ${product.title} to cart!)} className="rounded-2xl bg-green-500 px-5 py-2 font-bold text-black hover:bg-green-400 transition-all">Buy</button>
+                      <button onClick={() => alert('Added ' + product.title + ' to cart!')} className="rounded-2xl bg-green-500 px-5 py-2 font-bold text-black hover:bg-green-400 transition-all">Buy</button>
                     </div>
                   </div>
                 </motion.div>
