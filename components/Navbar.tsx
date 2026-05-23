@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+import { motion } from 'framer-motion'
+
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -24,26 +26,37 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-gray-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
-      <Link href="/" className="text-xl font-bold">Smart MarketBD</Link>
-      <div className="flex gap-4 items-center">
-        <Link href="/post" className="bg-green-500 text-black px-3 py-1 rounded hover:bg-green-400">Sell</Link>
-        {user ? (
-          <div className="relative">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="bg-gray-700 px-3 py-1 rounded">
-              👤 {user.email?.split('@')[0]}
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 bg-white text-black rounded shadow-lg p-2 w-40">
-                <Link href="/profile" className="block px-2 py-1 hover:bg-gray-100 rounded">My Listings</Link>
-                <Link href="/settings" className="block px-2 py-1 hover:bg-gray-100 rounded">Settings</Link>
-                <button onClick={handleLogout} className="block w-full text-left px-2 py-1 hover:bg-gray-100 rounded">Logout</button>
+    <nav className="sticky top-4 z-50">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="glass neon glow flex items-center justify-between p-3 rounded-2xl">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-teal-400 rounded-full flex items-center justify-center text-black font-bold">SM</div>
+            <div>
+              <div className="text-lg font-extrabold">Smart MarketBD</div>
+              <div className="text-xs text-zinc-300">Premium Local Marketplace</div>
+            </div>
+          </Link>
+
+          <div className="flex items-center gap-4">
+            <Link href="/post">
+              <motion.button whileTap={{ scale: 0.98 }} whileHover={{ scale: 1.02 }} className="bg-gradient-to-r from-indigo-500 to-teal-400 text-black px-4 py-2 rounded-xl font-bold">Sell</motion.button>
+            </Link>
+            {user ? (
+              <div className="relative">
+                <button onClick={() => setMenuOpen(!menuOpen)} className="bg-zinc-900/40 px-3 py-2 rounded-xl">👤 {user.email?.split('@')[0]}</button>
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 glass text-white rounded-xl p-2 w-44">
+                    <Link href="/profile" className="block px-2 py-2 hover:bg-white/5 rounded">My Listings</Link>
+                    <Link href="/settings" className="block px-2 py-2 hover:bg-white/5 rounded">Settings</Link>
+                    <button onClick={handleLogout} className="block w-full text-left px-2 py-2 hover:bg-white/5 rounded">Logout</button>
+                  </div>
+                )}
               </div>
+            ) : (
+              <Link href="/login" className="bg-indigo-600/80 hover:bg-indigo-500 px-3 py-2 rounded-xl">Login</Link>
             )}
           </div>
-        ) : (
-          <Link href="/login" className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-400">Login</Link>
-        )}
+        </div>
       </div>
     </nav>
   )

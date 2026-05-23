@@ -29,18 +29,38 @@ export default function PostListing() {
 
     let image_url = ''
     if (image) {
-      const fileExt = image.name.split('.').pop()
-      const fileName = ${user.id}-${Date.now()}.${fileExt}
-      const { error: uploadError } = await supabase.storage
-        .from('listings')
-        .upload(fileName, image)
-      if (uploadError) {
-        setError('Image upload failed')
+      // Validate image type and size (max 5MB)
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+      if (!allowedTypes.includes(image.type)) {
+        setError('Unsupported image type. Use JPG, PNG or WEBP.')
         setLoading(false)
         return
       }
-      const { data } = supabase.storage.from('listings').getPublicUrl(fileName)
-      image_url = data.publicUrl
+      const maxSize = 5 * 1024 * 1024
+      if (image.size > maxSize) {
+        setError('Image is too large. Max size is 5MB.')
+        setLoading(false)
+        return
+      }
+
+      const fileExt = image.name.split('.').pop()
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      try {
+        const { error: uploadError } = await supabase.storage
+          .from('listings')
+          .upload(fileName, image, { cacheControl: '3600', upsert: false, contentType: image.type })
+        if (uploadError) {
+          setError('Image upload failed: ' + uploadError.message)
+          setLoading(false)
+          return
+        }
+        const { data: publicData } = supabase.storage.from('listings').getPublicUrl(fileName)
+        image_url = (publicData && publicData.publicUrl) || ''
+      } catch (err: any) {
+        setError('Image upload error: ' + (err?.message || String(err)))
+        setLoading(false)
+        return
+      }
     }
 
     const { error } = await supabase.from('listings').insert({
@@ -108,11 +128,14 @@ export default function PostListing() {
               className="hidden" id="image-upload" />
             <label htmlFor="image-upload" className="cursor-pointer">
               {image ? (
-                <p className="text-green-400 font-bold">{image.name}</p>
+                <div className="flex flex-col items-center gap-2">
+                  <img src={URL.createObjectURL(image)} alt="preview" className="w-48 h-48 object-cover rounded-md" />
+                  <p className="text-green-400 font-bold">{image.name}</p>
+                </div>
               ) : (
                 <>
                   <p className="text-zinc-400 mb-2">Click to upload image</p>
-                  <p className="text-zinc-600 text-sm">JPG, PNG, WEBP</p>
+                  <p className="text-zinc-600 text-sm">JPG, PNG, WEBP — max 5MB</p>
                 </>
               )}
             </label>

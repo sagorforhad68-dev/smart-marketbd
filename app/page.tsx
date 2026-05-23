@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import Reveal from '@/components/Reveal'
+import ListingCard from '@/components/ListingCard'
 import { useEffect, useMemo, useState } from "react";
 import RobotCursor from "./components/RobotCursor";
 import AIChat from './components/AIChat';
@@ -17,43 +19,113 @@ import {
 
 const heroSlides = [
   {
-    title: "Buy & Sell Anything in Bangladesh",
-    description: "Connect buyers and sellers across Bangladesh. Post your product and reach thousands of buyers instantly.",
+    title: "Buy & Sell Electronics & Gadgets",
+    description: "Discover premium electronics and connected devices across Bangladesh with a smart marketplace experience.",
     cta: "Start Selling",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1600&q=80",
-    tag: "New Arrivals",
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1600&q=80",
+    tag: "Electronics",
   },
   {
-    title: "Find the Best Deals Near You",
-    description: "Browse thousands of products posted by real sellers. New and used items available.",
-    cta: "Browse Now",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1600&q=80",
-    tag: "Hot Deals",
+    title: "Find the Best Smartphone Deals",
+    description: "Browse the latest mobile devices, accessories, and verified sellers near you.",
+    cta: "Browse Mobiles",
+    image: "https://images.unsplash.com/photo-1512499617640-c2f99912e96f?auto=format&fit=crop&w=1600&q=80",
+    tag: "Mobiles",
   },
   {
-    title: "Sell Your Single Item Fast",
-    description: "Have just one item to sell? Post it here. Once sold, it disappears automatically.",
+    title: "Sell Your Item Fast with Confidence",
+    description: "Post anything from furniture to vehicles and reach buyers instantly with trusted listings.",
     cta: "Post Item",
-    image: "https://images.unsplash.com/photo-1538481143235-5d630028e4a6?auto=format&fit=crop&w=1600&q=80",
-    tag: "Quick Sale",
+    image: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1600&q=80",
+    tag: "Fast Sale",
   },
 ];
 
 const categories = [
-  { icon: <FaLaptop />, name: "Electronics", accent: "from-cyan-500 to-sky-600" },
-  { icon: <FaMobileAlt />, name: "Mobiles", accent: "from-fuchsia-500 to-pink-600" },
-  { icon: <FaGamepad />, name: "Gaming", accent: "from-amber-500 to-orange-600" },
-  { icon: <FaCamera />, name: "Cameras", accent: "from-violet-500 to-indigo-600" },
-  { icon: <FaTshirt />, name: "Clothing", accent: "from-lime-500 to-emerald-600" },
-  { icon: <FaStopwatch />, name: "Wearables", accent: "from-sky-500 to-blue-600" },
-  { icon: <FaCar />, name: "Cars", accent: "from-red-500 to-rose-600" },
-  { icon: <FaHome />, name: "Land & Property", accent: "from-yellow-500 to-amber-600" },
-  { icon: <FaTv />, name: "Furniture", accent: "from-teal-500 to-cyan-600" },
-  { icon: <FaBook />, name: "Books", accent: "from-blue-500 to-indigo-600" },
-  { icon: <FaBaby />, name: "Baby Items", accent: "from-pink-500 to-rose-600" },
-  { icon: <FaDog />, name: "Pets & Cattle", accent: "from-green-500 to-teal-600" },
-  { icon: <FaTools />, name: "Tools", accent: "from-orange-500 to-red-600" },
-  { icon: <FaFutbol />, name: "Sports", accent: "from-emerald-500 to-green-600" },
+  {
+    icon: <FaLaptop />,
+    name: "Electronics",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80",
+    accent: "from-cyan-500 to-sky-600",
+  },
+  {
+    icon: <FaMobileAlt />,
+    name: "Mobiles",
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=80",
+    accent: "from-fuchsia-500 to-pink-600",
+  },
+  {
+    icon: <FaGamepad />,
+    name: "Gaming",
+    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    accent: "from-amber-500 to-orange-600",
+  },
+  {
+    icon: <FaCamera />,
+    name: "Cameras",
+    image: "https://images.unsplash.com/photo-1519183071298-a2962d048b1f?auto=format&fit=crop&w=900&q=80",
+    accent: "from-violet-500 to-indigo-600",
+  },
+  {
+    icon: <FaTshirt />,
+    name: "Clothing",
+    image: "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=900&q=80",
+    accent: "from-lime-500 to-emerald-600",
+  },
+  {
+    icon: <FaStopwatch />,
+    name: "Wearables",
+    image: "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=900&q=80",
+    accent: "from-sky-500 to-blue-600",
+  },
+  {
+    icon: <FaCar />,
+    name: "Cars",
+    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80",
+    accent: "from-red-500 to-rose-600",
+  },
+  {
+    icon: <FaHome />,
+    name: "Land & Property",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80",
+    accent: "from-yellow-500 to-amber-600",
+  },
+  {
+    icon: <FaTv />,
+    name: "Furniture",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80",
+    accent: "from-teal-500 to-cyan-600",
+  },
+  {
+    icon: <FaBook />,
+    name: "Books",
+    image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80",
+    accent: "from-blue-500 to-indigo-600",
+  },
+  {
+    icon: <FaBaby />,
+    name: "Baby Items",
+    image: "https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=900&q=80",
+    accent: "from-pink-500 to-rose-600",
+  },
+  {
+    icon: <FaDog />,
+    name: "Pets & Cattle",
+    image: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80",
+    accent: "from-green-500 to-teal-600",
+  },
+  {
+    icon: <FaTools />,
+    name: "Tools",
+    image: "https://images.unsplash.com/photo-1519974719765-e6559eac2575?auto=format&fit=crop&w=900&q=80",
+    accent: "from-orange-500 to-red-600",
+  },
+  {
+    icon: <FaFutbol />,
+    name: "Sports",
+    image: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=900&q=80",
+    accent: "from-emerald-500 to-green-600",
+  },
 ];
 
 const featureCards = [
@@ -307,33 +379,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {listings.map((listing) => (
-              <div key={listing.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-green-400 transition-all">
-                {listing.image_url ? (
-                  <div className="relative h-48">
-                    <Image src={listing.image_url} alt={listing.title} fill className="object-cover" sizes="300px" />
-                  </div>
-                ) : (
-                  <div className="h-48 bg-zinc-800 flex items-center justify-center">
-                    <FaShoppingCart className="text-4xl text-zinc-600" />
-                  </div>
-                )}
-                <div className="p-4">
-                  <div className="flex gap-2 mb-2">
-                    <span className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded-full">{listing.category}</span>
-                    {listing.condition === 'used' && <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full">Used</span>}
-                    {listing.type === 'single' && <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">Single</span>}
-                  </div>
-                  <h3 className="text-lg font-bold mb-1 text-white">{listing.title}</h3>
-                  <p className="text-zinc-400 text-sm mb-3 line-clamp-2">{listing.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-green-400 font-black text-xl">৳{listing.price}</span>
-                    <a href={`tel:${listing.phone}`}
-                      className="bg-green-500 text-black px-3 py-1 rounded-lg text-sm font-bold hover:bg-green-400">
-                      Contact
-                    </a>
-                  </div>
-                </div>
-              </div>
+              <Reveal key={listing.id} className="">
+                <ListingCard listing={listing} />
+              </Reveal>
             ))}
           </div>
 
@@ -365,11 +413,18 @@ export default function Home() {
             {categories.map((cat) => (
               <motion.div key={cat.name} whileHover={{ y: -8 }}
                 onClick={() => { setCategoryFilter(cat.name); document.getElementById('marketplace')?.scrollIntoView({behavior: 'smooth'}) }}
-                className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 hover:border-green-400 transition-all cursor-pointer text-center">
-                <div className={`mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${cat.accent} text-xl text-black`}>
-                  {cat.icon}
+                className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 transition-all cursor-pointer">
+                <div className="relative h-40 overflow-hidden">
+                  <img src={cat.image} alt={cat.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/45" />
+                  <div className="absolute left-4 top-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/90 text-black text-xl shadow-lg">
+                    {cat.icon}
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-4 text-left">
+                    <p className="text-sm uppercase tracking-[0.2em] text-zinc-300">Category</p>
+                    <h3 className="text-lg font-bold text-white">{cat.name}</h3>
+                  </div>
                 </div>
-                <h3 className="text-sm font-bold text-white">{cat.name}</h3>
               </motion.div>
             ))}
           </div>

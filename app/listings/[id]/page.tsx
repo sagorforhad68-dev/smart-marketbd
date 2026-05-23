@@ -25,7 +25,12 @@ export default function ListingDetail() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 mt-8 bg-white rounded-xl shadow">
-      <img src={listing.image_url || '/placeholder.jpg'} className="w-full h-80 object-cover rounded" />
+      <img
+        src={listing.image_url || '/file.svg'}
+        onError={(event) => { (event.currentTarget as HTMLImageElement).src = '/file.svg' }}
+        alt={listing.title}
+        className="w-full h-80 object-cover rounded"
+      />
       <h1 className="text-2xl font-bold mt-6">{listing.title}</h1>
       <p className="text-xl text-green-600 font-bold mt-2">৳{listing.price}</p>
       <p className="mt-4 text-gray-700">{listing.description}</p>

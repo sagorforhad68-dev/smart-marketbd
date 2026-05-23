@@ -1,13 +1,13 @@
-'use client'
+"use client"
+
+export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function ChatPage() {
-  const searchParams = useSearchParams()
-  const listingId = searchParams.get('listing')
-  const sellerId = searchParams.get('seller')
+  const [listingId, setListingId] = useState<string | null>(null)
+  const [sellerId, setSellerId] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
   const [messages, setMessages] = useState<any[]>([])
   const [input, setInput] = useState('')
@@ -17,11 +17,18 @@ export default function ChatPage() {
   }, [])
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    setListingId(params.get('listing'))
+    setSellerId(params.get('seller'))
+  }, [])
+
+  useEffect(() => {
     if (!user || !listingId) return
     supabase
       .from('messages')
       .select('*')
-      .or(sender_id.eq.${user.id},receiver_id.eq.${user.id})
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
       .eq('listing_id', listingId)
       .order('created_at', { ascending: true })
       .then(({ data }) => setMessages(data || []))
@@ -39,7 +46,7 @@ export default function ChatPage() {
     const { data } = await supabase
       .from('messages')
       .select('*')
-      .or(sender_id.eq.${user.id},receiver_id.eq.${user.id})
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
       .eq('listing_id', listingId)
       .order('created_at', { ascending: true })
     setMessages(data || [])

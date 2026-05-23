@@ -19,13 +19,19 @@ export default function AIChat() {
     setMessages(prev => [...prev, { role: 'user', text: userMsg }])
     setLoading(true)
 
-    const res = await fetch('/api/gemini', {
+    const res = await fetch('/api/groq', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: userMsg })
+      body: JSON.stringify({ message: userMsg }),
     })
     const data = await res.json()
-    setMessages(prev => [...prev, { role: 'ai', text: data.reply }])
+    const reply =
+      data?.content ??
+      data?.completion?.choices?.[0]?.message?.content ??
+      data?.choices?.[0]?.message?.content ??
+      'Sorry, I could not get a response from the AI service.'
+
+    setMessages(prev => [...prev, { role: 'ai', text: reply }])
     setLoading(false)
   }
 
