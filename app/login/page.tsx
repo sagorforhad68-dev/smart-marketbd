@@ -4,83 +4,147 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { FaEnvelope, FaLock } from 'react-icons/fa'
 
 export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState('buyer')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
 
-  const handleSubmit = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoading(true)
     setError('')
-    if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setError(error.message)
-      else router.push('/')
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email, password,
-        options: { data: { role } }
+
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       })
-      if (error) setError(error.message)
-      else router.push('/')
+
+      if (signInError) {
+        setError(signInError.message)
+        setLoading(false)
+        return
+      }
+
+      // FIXED: profiles table থেকে role নেওয়া হচ্ছে
+      const { data: { user: u } } = await supabase.auth.getUser()
+      if (u) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', u.id)
+          .maybeSingle()
+
+        const role = profile?.role || 'buyer'
+
+        if (role === 'admin') {
+          router.push('/admin')
+        } else if (role === 'seller') {
+          router.push('/seller/dashboard')
+        } else {
+          router.push('/buyer/home')
+        }
+      }
+    } catch (err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl w-96 border border-gray-700">
-        <div className="flex mb-6 bg-gray-900 rounded-xl p-1">
-          <button onClick={() => setIsLogin(true)}
-            className={`flex-1 py-2 rounded-lg font-bold transition-all ${isLogin ? 'bg-green-500 text-black' : 'text-gray-400'}`}>
-            Login
-          </button>
-          <button onClick={() => setIsLogin(false)}
-            className={`flex-1 py-2 rounded-lg font-bold transition-all ${!isLogin ? 'bg-green-500 text-black' : 'text-gray-400'}`}>
-            Sign Up
-          </button>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-4">
+      <div className="w-full max-w-md">
+        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8">
 
-        <h1 className="text-2xl font-bold mb-6 text-center text-white">
-          {isLogin ? 'Welcome Back!' : 'Create Account'}
-        </h1>
-
-        {!isLogin && (
-          <div className="flex mb-4 bg-gray-900 rounded-xl p-1">
-            <button onClick={() => setRole('buyer')}
-              className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${role === 'buyer' ? 'bg-blue-500 text-white' : 'text-gray-400'}`}>
-              Buyer
-            </button>
-            <button onClick={() => setRole('seller')}
-              className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${role === 'seller' ? 'bg-blue-500 text-white' : 'text-gray-400'}`}>
-              Seller
-            </button>
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+            <p className="text-zinc-400 text-sm">Sign in to your Smart MarketBD account</p>
           </div>
-        )}
 
-        {error && <p className="text-red-400 mb-4 text-sm bg-red-900/30 p-3 rounded-lg">{error}</p>}
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
 
-        <input type="email" placeholder="Email"
-          className="w-full bg-gray-900 border border-gray-600 text-white p-3 mb-4 rounded-xl outline-none focus:border-green-500"
-          value={email} onChange={e => setEmail(e.target.value)} />
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
 
-        <input type="password" placeholder="Password"
-          className="w-full bg-gray-900 border border-gray-600 text-white p-3 mb-6 rounded-xl outline-none focus:border-green-500"
-          value={password} onChange={e => setPassword(e.target.value)} />
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Email Address</label>
+              <div className="relative">
+                <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
+                />
+              </div>
+            </div>
 
-        <button onClick={handleSubmit}
-          className="w-full bg-green-500 hover:bg-green-400 text-black font-bold p-3 rounded-xl transition-all">
-          {loading ? 'Loading...' : isLogin ? 'Login' : 'Create Account'}
-        </button>
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Password</label>
+              <div className="relative">
+                <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition"
+                />
+              </div>
+            </div>
 
-        <p className="text-center mt-4">
-          <Link href="/" className="text-green-400 text-sm">← Back to Home</Link>
-        </p>
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition mt-6"
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+
+          </form>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/10"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-zinc-900 text-zinc-400">Or</span>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="space-y-4 text-center text-sm">
+            <p className="text-zinc-400">
+              Don't have an account?{' '}
+              <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-semibold transition">
+                Create one
+              </Link>
+            </p>
+            <Link href="/" className="text-zinc-400 hover:text-white transition text-xs block">
+              ← Back to Home
+            </Link>
+          </div>
+
+        </div>
+        {/* REMOVED: Demo info box */}
       </div>
     </div>
   )

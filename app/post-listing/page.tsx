@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
+import { insertListing } from '@/lib/listings'
+import { uploadProductImage } from '@/lib/storage'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -16,6 +18,7 @@ export default function PostListing() {
   const [image, setImage] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
   const categories = ['Electronics', 'Cattle', 'Land', 'Cars', 'Clothing', 'Old Items']
@@ -29,42 +32,18 @@ export default function PostListing() {
 
     let image_url = ''
     if (image) {
-      // Validate image type and size (max 5MB)
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
-      if (!allowedTypes.includes(image.type)) {
-        setError('Unsupported image type. Use JPG, PNG or WEBP.')
-        setLoading(false)
-        return
-      }
-      const maxSize = 5 * 1024 * 1024
-      if (image.size > maxSize) {
-        setError('Image is too large. Max size is 5MB.')
-        setLoading(false)
-        return
-      }
-
-      const fileExt = image.name.split('.').pop()
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`
       try {
-        const { error: uploadError } = await supabase.storage
-          .from('listings')
-          .upload(fileName, image, { cacheControl: '3600', upsert: false, contentType: image.type })
-        if (uploadError) {
-          setError('Image upload failed: ' + uploadError.message)
-          setLoading(false)
-          return
-        }
-        const { data: publicData } = supabase.storage.from('listings').getPublicUrl(fileName)
-        image_url = (publicData && publicData.publicUrl) || ''
-      } catch (err: any) {
-        setError('Image upload error: ' + (err?.message || String(err)))
+        image_url = await uploadProductImage(user.id, image)
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Image upload failed.')
         setLoading(false)
         return
       }
     }
 
-    const { error } = await supabase.from('listings').insert({
-      user_id: user.id,
+    const seoSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+
+    const { error } = await insertListing(user.id, {
       title,
       description,
       price: parseFloat(price),
@@ -73,6 +52,7 @@ export default function PostListing() {
       type,
       phone,
       image_url,
+      seo_slug: seoSlug,
     })
 
     if (error) {
@@ -124,21 +104,32 @@ export default function PostListing() {
           </div>
 
           <div className="border-2 border-dashed border-zinc-700 rounded-xl p-6 text-center hover:border-green-500 transition-all">
-            <input type="file" accept="image/*" onChange={e => setImage(e.target.files?.[0] || null)}
-              className="hidden" id="image-upload" />
-            <label htmlFor="image-upload" className="cursor-pointer">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/jpg"
+              onChange={e => setImage(e.target.files?.[0] || null)}
+              className="sr-only"
+              id="image-upload"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full cursor-pointer"
+            >
               {image ? (
                 <div className="flex flex-col items-center gap-2">
-                  <img src={URL.createObjectURL(image)} alt="preview" className="w-48 h-48 object-cover rounded-md" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={URL.createObjectURL(image)} alt="Preview" className="w-48 h-48 object-cover rounded-md" />
                   <p className="text-green-400 font-bold">{image.name}</p>
                 </div>
               ) : (
                 <>
-                  <p className="text-zinc-400 mb-2">Click to upload image</p>
+                  <p className="text-zinc-400 mb-2">Tap to upload product photo</p>
                   <p className="text-zinc-600 text-sm">JPG, PNG, WEBP — max 5MB</p>
                 </>
               )}
-            </label>
+            </button>
           </div>
 
           <button onClick={handleSubmit} disabled={loading}

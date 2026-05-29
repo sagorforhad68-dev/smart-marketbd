@@ -71,7 +71,7 @@ export default function AIChat() {
       <motion.button
         onClick={() => setOpen((s) => !s)}
         whileHover={{ scale: 1.05 }}
-        className="fixed bottom-6 right-6 bg-gradient-to-br from-indigo-500 to-teal-400 text-black p-4 rounded-full shadow-2xl z-50 text-2xl"
+        className="fixed bottom-6 right-6 bg-gradient-to-br from-indigo-500 to-teal-400 text-black p-4 rounded-full shadow-2xl z-[60] text-2xl"
         aria-label="Open AI Assistant"
       >
         {open ? <FaTimes /> : <FaRobot />}
@@ -82,7 +82,7 @@ export default function AIChat() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
-          className="fixed bottom-20 right-6 w-80 sm:w-96 bg-zinc-900/60 border border-zinc-700 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden glass"
+          className="fixed bottom-20 right-6 w-80 sm:w-96 bg-zinc-900/60 border border-zinc-700 rounded-2xl shadow-2xl z-[60] flex flex-col overflow-hidden glass"
         >
           <div className="bg-gradient-to-r from-indigo-600 to-teal-400 text-black px-4 py-3 font-bold flex items-center gap-2">
             <FaRobot /> Smart AI Assistant

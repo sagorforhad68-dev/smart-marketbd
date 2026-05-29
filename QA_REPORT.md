@@ -9,7 +9,7 @@ Summary:
 
 Automated checks performed:
 - `npm run build` completed without errors.
-- Static grep to find `supabase.storage.from('listings')` references to ensure bucket name consistency.
+- Static grep to find `supabase.storage.from('product-images')` references to ensure bucket name consistency.
 
 Files changed (high level):
 - `app/globals.css` — global design, glassmorphism, typing dots
@@ -41,7 +41,7 @@ npm run dev
 - Fill fields, choose an image <=5MB (JPG/PNG/WEBP).
 - Confirm preview appears before posting.
 - Click `Post Product` and confirm redirect and that the listing appears in the marketplace.
-- Confirm uploaded image is served (image visible) and stored in Supabase bucket `listings`.
+- Confirm uploaded image is served (image visible) and stored in Supabase bucket `product-images`.
 
 4) Marketplace browsing & listing page
 - Browse marketplace, open listing details. Confirm images, description, phone contact link.

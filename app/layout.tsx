@@ -1,20 +1,27 @@
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import PageTransition from '@/components/PageTransition'
+import GlobalRobot from '@/components/GlobalRobot'
 
 export const metadata = {
-  title: 'Smart MarketBD',
-  description: 'Local marketplace of Bangladesh',
+  title: 'Smart MarketBD — Buy & Sell in Bangladesh',
+  description: 'Discover electronics, mobiles, vehicles, and more from trusted local sellers across Bangladesh.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-gradient-to-b from-[#07070a] via-[#0b0b12] to-[#050508] text-white">
+    <html lang="en" data-scroll-behavior="smooth">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className="overflow-x-hidden text-white antialiased">
         <Navbar />
-        <main className="px-4 md:px-8 lg:px-16">
+        <main>
           <PageTransition>{children}</PageTransition>
         </main>
+        <GlobalRobot />
       </body>
     </html>
   )

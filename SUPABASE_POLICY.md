@@ -1,13 +1,13 @@
 # Supabase Storage Bucket Policy Recommendations
 
-This project uses a storage bucket named `listings` (client code references `supabase.storage.from('listings')`). Below are recommended settings and RLS policies to allow authenticated users to upload images and keep public read access for images.
+This project uses a storage bucket named `product-images` (client code references `supabase.storage.from('product-images')`). Below are recommended settings and RLS policies to allow authenticated users to upload images and keep public read access for images.
 
 ## 1) Create bucket
-- Name: `listings`
+- Name: `product-images`
 - Public: Yes (for public read access via generated `publicUrl`)
 
 ## 2) Public access
-If you want files to be directly accessible via `https://<project>.supabase.co/storage/v1/object/public/listings/<file>` set the bucket to public. This is simplest for marketplace images.
+If you want files to be directly accessible via `https://<project>.supabase.co/storage/v1/object/public/product-images/<file>` set the bucket to public. This is simplest for marketplace images.
 
 ## 3) Restrict uploads to authenticated users (recommended)
 If bucket is public, you should use RLS or storage policies to restrict who can upload. In Supabase SQL editor, run:
@@ -20,9 +20,9 @@ create policy "Allow authenticated uploads" on storage.objects
   for insert using ( auth.role() = 'authenticated' );
 
 -- Optionally restrict bucket
-create policy "Allow upload to listings bucket" on storage.objects
+create policy "Allow upload to product-images bucket" on storage.objects
   for insert using (
-    bucket_id = 'listings' AND auth.role() = 'authenticated'
+    bucket_id = 'product-images' AND auth.role() = 'authenticated'
   );
 
 ## 4) Optional: Prevent overwrites (upsert false already used in client)
@@ -41,8 +41,8 @@ If you prefer to keep the bucket private, use `createSignedUrl` server-side and 
 ## 6) Example upload flow (client)
 - Client authenticates using Supabase Auth
 - Client chooses file and generates a safe filename (we use `${user.id}-${Date.now()}.${ext}`)
-- Client calls `supabase.storage.from('listings').upload(fileName, file, { upsert: false })`
-- Client retrieves public URL via `getPublicUrl(fileName)` and stores it in `listings` table
+- Client calls `supabase.storage.from('product-images').upload(fileName, file, { upsert: false })`
+- Client retrieves public URL via `getPublicUrl(fileName)` and stores it in `listings` database table
 
 ## Notes
 - Double-check your Supabase project's public URL is set in `NEXT_PUBLIC_SUPABASE_URL` and matches `next.config.ts` remotePatterns.

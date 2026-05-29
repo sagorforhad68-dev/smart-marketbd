@@ -1,153 +1,158 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { FaSignOutAlt, FaBoxes, FaShoppingCart, FaUsers } from 'react-icons/fa'
+import { motion } from 'framer-motion'
+import {
+ FaHeart, FaShoppingBag, FaSearch, FaFire,
+ FaStar, FaMapMarkerAlt, FaBell, FaComments,
+} from 'react-icons/fa'
 
-export default function Dashboard() {
-  const [user, setUser] = useState<any>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
+export default function BuyerHomePage() {
+ const [user, setUser] = useState<any>(null)
+ const [products, setProducts] = useState<any[]>([])
+ const [search, setSearch] = useState('')
+ const router = useRouter()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/login')
-      } else {
-        setUser(user)
-        // Check if user is admin
-        const userMetadata = user.user_metadata
-        setIsAdmin(userMetadata?.isAdmin || false)
-      }
-      setLoading(false)
-    }
-    getUser()
-  }, [router])
+ useEffect(() => {
+   const load = async () => {
+     const { data: { user: u } } = await supabase.auth.getUser()
+     if (!u) { router.push('/login'); return }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
-  }
+     const { data: sellerData } = await supabase
+       .from('seller_roles')
+       .select('user_id')
+       .eq('user_id', u.id)
+       .maybeSingle()
+     if (sellerData) { router.push('/seller/dashboard'); return }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-2xl">Loading...</div>
-      </div>
-    )
-  }
+     setUser(u)
 
-  if (!user) {
-    return null
-  }
+     const { data: prods } = await supabase
+       .from('products')
+       .select('*')
+       .order('created_at', { ascending: false })
+       .limit(20)
+     setProducts(prods ?? [])
+   }
+   load()
+ }, [])
 
-  return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="border-b border-zinc-800 px-8 py-6 bg-black/90 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-3xl font-black text-green-400 hover:text-green-300 transition-colors">
-            Smart MarketBD
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-bold transition-colors"
-          >
-            <FaSignOutAlt />
-            Logout
-          </button>
-        </div>
-      </header>
+ const filtered = products.filter(p =>
+   p.name?.toLowerCase().includes(search.toLowerCase())
+ )
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-8 py-12">
-        {/* User Info Card */}
-        <div className="bg-gradient-to-r from-green-500/10 to-black/50 border border-zinc-800 rounded-lg p-8 mb-12">
-          <h2 className="text-3xl font-black mb-4">Welcome, {user.email}!</h2>
-          <div className="space-y-2 text-zinc-400">
-            <p><span className="text-green-400 font-bold">Email:</span> {user.email}</p>
-            <p><span className="text-green-400 font-bold">User ID:</span> {user.id}</p>
-            <p><span className="text-green-400 font-bold">Account Type:</span> {isAdmin ? 'Administrator' : 'Customer'}</p>
-            <p><span className="text-green-400 font-bold">Joined:</span> {new Date(user.created_at).toLocaleDateString()}</p>
-          </div>
-        </div>
+ const displayName = user?.email?.split('@')[0] ?? 'Buyer'
 
-        {/* Dashboard Grid */}
-        <div className="grid gap-6 md:grid-cols-3 mb-12">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-8 hover:border-green-400 transition-colors">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-lg bg-green-500/20 text-green-400 text-2xl mb-4">
-              <FaBoxes />
-            </div>
-            <h3 className="text-2xl font-bold mb-2">Products</h3>
-            <p className="text-zinc-400 mb-4">Manage your product catalog</p>
-            {isAdmin && (
-              <button className="bg-green-500 hover:bg-green-400 text-black px-4 py-2 rounded-lg font-bold transition-colors">
-                Manage Products
-              </button>
-            )}
-          </div>
+ return (
+   <div className="min-h-screen bg-zinc-950 text-white pb-20">
 
-          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-8 hover:border-green-400 transition-colors">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-lg bg-green-500/20 text-green-400 text-2xl mb-4">
-              <FaShoppingCart />
-            </div>
-            <h3 className="text-2xl font-bold mb-2">Orders</h3>
-            <p className="text-zinc-400 mb-4">View and manage orders</p>
-            {isAdmin && (
-              <button className="bg-green-500 hover:bg-green-400 text-black px-4 py-2 rounded-lg font-bold transition-colors">
-                View Orders
-              </button>
-            )}
-          </div>
+     <div className="bg-gradient-to-br from-blue-900/40 via-zinc-950 to-zinc-950 px-4 pt-6 pb-8">
+       <div className="max-w-3xl mx-auto">
+         <h1 className="text-2xl font-bold mb-1">
+           Hello, <span className="text-blue-400">{displayName}</span> 👋
+         </h1>
+         <p className="text-zinc-400 text-sm mb-5">What are you looking for today?</p>
+         <div className="relative">
+           <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
+           <input
+             type="text"
+             placeholder="Search products..."
+             value={search}
+             onChange={e => setSearch(e.target.value)}
+             className="w-full rounded-2xl bg-white/10 border border-white/10 pl-11 pr-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500"
+           />
+         </div>
+       </div>
+     </div>
 
-          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-8 hover:border-green-400 transition-colors">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-lg bg-green-500/20 text-green-400 text-2xl mb-4">
-              <FaUsers />
-            </div>
-            <h3 className="text-2xl font-bold mb-2">Users</h3>
-            <p className="text-zinc-400 mb-4">Manage user accounts</p>
-            {isAdmin && (
-              <button className="bg-green-500 hover:bg-green-400 text-black px-4 py-2 rounded-lg font-bold transition-colors">
-                Manage Users
-              </button>
-            )}
-          </div>
-        </div>
+     <div className="max-w-3xl mx-auto px-4 space-y-8 mt-6">
 
-        {/* Info Section */}
-        <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-8">
-          <h3 className="text-2xl font-bold mb-4">Dashboard Information</h3>
-          <div className="text-zinc-400 space-y-3">
-            {isAdmin ? (
-              <>
-                <p>✓ You have admin access to the dashboard</p>
-                <p>✓ You can manage products, orders, and users</p>
-                <p>✓ Access Supabase console for detailed analytics</p>
-              </>
-            ) : (
-              <>
-                <p>✓ You are logged in as a customer</p>
-                <p>✓ Return to the <Link href="/" className="text-green-400 hover:text-green-300">homepage</Link> to continue shopping</p>
-                <p>✓ Your order history will appear here (feature coming soon)</p>
-              </>
-            )}
-          </div>
-        </div>
+       <div className="grid grid-cols-4 gap-3">
+         {[
+           { icon: FaHeart, label: 'Wishlist', href: '/buyer/wishlist', color: 'text-red-400' },
+           { icon: FaShoppingBag, label: 'Orders', href: '/buyer/orders', color: 'text-blue-400' },
+           { icon: FaComments, label: 'Messages', href: '/buyer/messages', color: 'text-emerald-400' },
+           { icon: FaBell, label: 'Alerts', href: '/buyer/alerts', color: 'text-yellow-400' },
+         ].map(({ icon: Icon, label, href, color }) => (
+           <Link key={label} href={href}>
+             <div className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-4 hover:bg-white/10 transition">
+               <Icon className={`text-xl ${color}`} />
+               <span className="text-xs text-zinc-300">{label}</span>
+             </div>
+           </Link>
+         ))}
+       </div>
 
-        {/* Back to Home */}
-        <div className="mt-12 text-center">
-          <Link 
-            href="/"
-            className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 font-bold transition-colors"
-          >
-            ← Back to Home
-          </Link>
-        </div>
-      </main>
-    </div>
-  )
+       <div>
+         <div className="flex items-center gap-2 mb-3">
+           <FaFire className="text-orange-400" />
+           <h2 className="font-bold text-lg">Flash Deals</h2>
+           <span className="ml-auto text-xs text-zinc-400">See all</span>
+         </div>
+         <div className="flex gap-3 overflow-x-auto pb-2">
+           {filtered.slice(0, 8).map(p => (
+             <Link key={p.id} href={`/product/${p.slug ?? p.id}`}>
+               <motion.div whileHover={{ scale: 1.03 }}
+                 className="min-w-[150px] rounded-2xl border border-white/10 bg-zinc-900 overflow-hidden">
+                 {p.image_url ? (
+                   <img src={p.image_url} alt={p.name} className="w-full h-28 object-cover" />
+                 ) : (
+                   <div className="w-full h-28 bg-zinc-800 flex items-center justify-center text-zinc-600 text-xs">No Image</div>
+                 )}
+                 <div className="p-2">
+                   <p className="text-xs font-semibold truncate">{p.name}</p>
+                   <p className="text-emerald-400 text-sm font-bold">৳{p.price}</p>
+                 </div>
+               </motion.div>
+             </Link>
+           ))}
+           {filtered.length === 0 && (
+             <p className="text-zinc-500 text-sm py-4">No products found</p>
+           )}
+         </div>
+       </div>
+
+       <div>
+         <div className="flex items-center gap-2 mb-3">
+           <FaStar className="text-yellow-400" />
+           <h2 className="font-bold text-lg">New Arrivals</h2>
+         </div>
+         <div className="grid grid-cols-2 gap-3">
+           {filtered.slice(0, 6).map(p => (
+             <Link key={p.id} href={`/product/${p.slug ?? p.id}`}>
+               <motion.div whileHover={{ scale: 1.02 }}
+                 className="rounded-2xl border border-white/10 bg-zinc-900 overflow-hidden">
+                 {p.image_url ? (
+                   <img src={p.image_url} alt={p.name} className="w-full h-36 object-cover" />
+                 ) : (
+                   <div className="w-full h-36 bg-zinc-800 flex items-center justify-center text-zinc-600 text-xs">No Image</div>
+                 )}
+                 <div className="p-3">
+                   <p className="text-sm font-semibold truncate">{p.name}</p>
+                   <p className="text-emerald-400 font-bold">৳{p.price}</p>
+                   <p className="text-zinc-500 text-xs flex items-center gap-1 mt-1">
+                     <FaMapMarkerAlt /> {p.location ?? 'Bangladesh'}
+                   </p>
+                 </div>
+               </motion.div>
+             </Link>
+           ))}
+         </div>
+       </div>
+
+       <div className="rounded-2xl bg-gradient-to-r from-emerald-900/40 to-teal-900/40 border border-emerald-500/20 p-5 text-center">
+         <p className="font-bold text-lg mb-1">Want to sell something? 🚀</p>
+         <p className="text-zinc-400 text-sm mb-4">Become a seller and reach thousands of buyers</p>
+         <Link href="/seller/create-shop"
+           className="inline-block rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 px-6 py-2.5 text-sm font-bold text-zinc-950">
+           Start Selling →
+         </Link>
+       </div>
+
+     </div>
+   </div>
+ )
 }
